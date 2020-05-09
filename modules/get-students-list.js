@@ -37,7 +37,7 @@ async function getHtmlPages(reqPath, maxPages, saveArr) {
 
 // /////////////////////////////////////////////////////////////////////
 // process HTML pages and return array of High Schools
-function processHtml(reqPath, lastUpdate, page, pIndex) {
+function processHtml(year, reqPath, lastUpdate, page, pIndex) {
     try {
         console.log(`RO processHtml START(${pIndex}) 222222222222222222222`);
         console.log('\x1b[34m%s\x1b[0m', `RO PROGRESS: Process Exam Centers HTML pages`);
@@ -173,6 +173,7 @@ function processHtml(reqPath, lastUpdate, page, pIndex) {
 
                 // return new item
                 returnArr.push({
+                    an: year,
                     index: stIndex,
                     nume: stName,
                     numeLung: stFullName,
@@ -221,7 +222,7 @@ function processHtml(reqPath, lastUpdate, page, pIndex) {
 
 // /////////////////////////////////////////////////////////////////////
 // Download & Process Exams Centers
-async function extractData(reqPath, htmlData) {
+async function extractData(year, reqPath, htmlData) {
     console.log(`RO @extractData START 111111111111111111111`);
     // load data in cheerio object
     const $ = cheerio.load(htmlData);
@@ -274,7 +275,7 @@ async function extractData(reqPath, htmlData) {
         // we need to get Students list, the third <table> in each page
         for(let pIndex = 0; pIndex < pagesArr.length; pIndex += 1) {
             console.log(`RO @extractData >>> get all Students pages | for loop #${pIndex}`);
-            returnArr.push(...processHtml(reqPath, lastUpdate, pagesArr[pIndex], pIndex));
+            returnArr.push(...processHtml(year, reqPath, lastUpdate, pagesArr[pIndex], pIndex));
         }
 
     } else {
@@ -288,14 +289,14 @@ async function extractData(reqPath, htmlData) {
 
 // /////////////////////////////////////////////////////////////////////////////
 // // EXPORTS
-module.exports = async (firstPagePath, saveFile) => {
+module.exports = async (year, firstPagePath, saveFile) => {
     try {
         console.log('\x1b[34m%s\x1b[0m', `RO PROGRESS: Download Students list`);
 
         // get data
         const response = await axios.get(firstPagePath);
         console.log(`RO GET first page status = ${response.status}`);
-        const studentsArr =  await extractData(firstPagePath, response.data);
+        const studentsArr =  await extractData(year, firstPagePath, response.data);
 
         console.log('RO extractData done !!!!!!!!!!!!!!!!!!!!!!!!!!!');
         // save data to file

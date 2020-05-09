@@ -214,7 +214,7 @@ function processHtml(countyIndex, county, reqPath, lastUpdate, page, pIndex) {
 // /////////////////////////////////////////////////////////////////////
 // Download & Process Exams Centers
 async function extractData(countyIndex, county, reqPath, htmlData) {
-    console.log(`@extractData START(${countyIndex}) 111111111111111111111`);
+    console.log(`\n@extractData START(${countyIndex}) 111111111111111111111`);
     // console.log('\x1b[34m%s\x1b[0m', `PROGRESS: Download & Process Exams Centers first HTML page`);
     // load data in cheerio object
     const $ = cheerio.load(htmlData);
@@ -268,7 +268,7 @@ async function extractData(countyIndex, county, reqPath, htmlData) {
         // we need to get Exams Centers, the third <table> in each page
         for(let pIndex = 0; pIndex < pagesArr.length; pIndex += 1) {
             console.log(`${countyIndex}::${county.code}: @extractData >>> get all EC pages for loop #${pIndex}`);
-            ecArr.push(...processHtml(countyIndex, county, reqPath, lastUpdate, [pIndex], pIndex));
+            ecArr.push(...processHtml(countyIndex, county, reqPath, lastUpdate, pagesArr[pIndex], pIndex));
         }
 
         // 4. for each Exams Center get all High Schools
