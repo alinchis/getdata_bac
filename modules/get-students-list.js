@@ -93,9 +93,17 @@ function processHtml(year, reqPath, lastUpdate, page, pIndex) {
                 const stSchoolName = $(row).children().eq(5)
                     .children().first().html()
                     .replace(/&#xA0;/g, '')
+                    .replace(/\s+/g, ' ')
                     .replace(/&quot;/g, '"')
                     .replace(/&apos;/g, '"')
-                    .replace(/&#xE2;&#x20AC;&#x2122;/g, '"');
+                    .replace(/&#xE2;&#x20AC;&#x2122;/g, '"')
+                    .replace(/&#xE2;&#x20AC;&#x17E;/g, '"')
+                    .replace(/&#xC3;&#xA1;/g, 'Á')
+                    .replace(/&#xC3;&#xA9;/g, 'É')
+                    .replace(/&#xC3;&#xB6;/g, 'Ö')
+                    .replace(/&#xC3;&#xB3;/g, 'Ó')
+                    .replace(/&#xC5;&#x2018;/g, 'Ő')
+                    .trim();
                 console.log(stSchoolName);
                 // get Student School County
                 const stSchoolCounty = $(row).children().eq(6)

@@ -110,7 +110,17 @@ function processHsHtml(pageHtml, pageIndex) {
             // get HS name
             const itemName = $(row).children().eq(1)
                 .html().replace(/&#xA0;/g, '')
-                .replace(/&quot;/g, '"').trim();
+                .replace(/\s+/g, ' ')
+                .replace(/&quot;/g, '"')
+                .replace(/&apos;/g, '"')
+                .replace(/&#xE2;&#x20AC;&#x2122;/g, '"')
+                .replace(/&#xE2;&#x20AC;&#x17E;/g, '"')
+                .replace(/&#xC3;&#xA1;/g, 'Á')
+                .replace(/&#xC3;&#xA9;/g, 'É')
+                .replace(/&#xC3;&#xB6;/g, 'Ö')
+                .replace(/&#xC3;&#xB3;/g, 'Ó')
+                .replace(/&#xC5;&#x2018;/g, 'Ő')
+                .trim();
             // console.log(itemName);
             // get HS SIRUES code
             const itemCode = $(row).children().eq(2)
@@ -167,7 +177,17 @@ function processHtml(countyIndex, county, reqPath, lastUpdate, page, pIndex) {
                 // get Exam Center name
                 const itemName = $(row).children().eq(1)
                     .html().replace(/&#xA0;/g, '')
-                    .replace(/&quot;/g, '"').trim();
+                    .replace(/\s+/g, ' ')
+                    .replace(/&quot;/g, '"')
+                    .replace(/&apos;/g, '"')
+                    .replace(/&#xE2;&#x20AC;&#x2122;/g, '"')
+                    .replace(/&#xE2;&#x20AC;&#x17E;/g, '"')
+                    .replace(/&#xC3;&#xA1;/g, 'Á')
+                    .replace(/&#xC3;&#xA9;/g, 'É')
+                    .replace(/&#xC3;&#xB6;/g, 'Ö')
+                    .replace(/&#xC3;&#xB3;/g, 'Ó')
+                    .replace(/&#xC5;&#x2018;/g, 'Ő')
+                    .trim();
                 // console.log(itemName);
                 // get Exam Center SIRUES code
                 const itemCode = $(row).children().eq(2)
