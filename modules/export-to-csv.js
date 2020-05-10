@@ -9,7 +9,7 @@ const fs = require('fs-extra');
 
 // /////////////////////////////////////////////////////////////////////
 // Download & Process Exams Centers
-function extractData(ecArray, stArray) {
+function extractData(year, month, ecArray, stArray) {
     // refactor exams centers array, from 2 levels to 1 level
     const newEcArray = ecArray.map((ecItem) => {
         return ecItem.listaLicee.map((hsItem) => {
@@ -29,18 +29,30 @@ function extractData(ecArray, stArray) {
             }
         });
     }).flat();
+    // add missing school
+    if (year === 2018 && month === 'july') newEcArray.push({
+        denumire: 'LICEUL TEHNOLOGIC DUMBRAVIOARA',
+        codSirues: '5985413',
+        localitate: 'DUMBRAVIOARA',
+        judetCod: 'MS',
+        judetNume: 'MURES',
+        centruExaminareDenumire: '',
+        centruExaminareCodSirues: '',
+        centruExaminareLocalitate: '',
+        ultimaActualizare: newEcArray[0].ultimaActualizare,
+    })
 
     // build return array
     const returnArr = stArray.map((student, index) => {
-
         // find corresponding item from the exams centers array
         // console.log(newEcArray);
         const unitateDetalii = newEcArray.filter(item => item.denumire === student.unitateInvatamant && item.judetCod === student.unitateJudet);
-        if(unitateDetalii.length === 0) throw `ERROR \'${student.unitateInvatamant}\' NOT found!!!`;
+        if(unitateDetalii.length === 0) throw `ERROR \'${student.unitateJudet}\':\'${student.unitateInvatamant}\' NOT found!!!`;
 
         // return new row items
         return [
             student.an,
+            month === 'july' ? 'iulie' : 'septembrie',
             unitateDetalii[0].codSirues,
             student.unitateInvatamant,
             '', // siruta
@@ -92,16 +104,17 @@ function extractData(ecArray, stArray) {
     // create header row
     const header_row = [
         'an',
+        'luna',
         'cod_sirues',
         'unitate_invatamant',
         'siruta',
-        'localitate',
+        'localitate_en',
         'localitate_en2',
         'siruta_uat',
-        'uat',
+        'uat_en',
         'judet_cod',
         'judet_id',
-        'judet',
+        'judet_en',
         'judet_en2',
         'centru_examinare_cod_sirues',
         'centru_examinare',
@@ -147,7 +160,7 @@ function extractData(ecArray, stArray) {
 
 // /////////////////////////////////////////////////////////////////////////////
 // // EXPORTS
-module.exports = (ecFilePath, stFilePath, saveFile) => {
+module.exports = (year, month, ecFilePath, stFilePath, saveFile) => {
     try {
         console.log('\x1b[34m%s\x1b[0m', `PROGRESS: Export JSON to CSV`);
 
@@ -156,7 +169,7 @@ module.exports = (ecFilePath, stFilePath, saveFile) => {
         const stArr = JSON.parse(fs.readFileSync(stFilePath, 'utf8'));
 
         // process data into new array
-        const returnArray = extractData(ecArr, stArr);
+        const returnArray = extractData(year, month, ecArr, stArr);
 
         console.log('extractData done !!!!!!!!!!!!!!!!!!!!!!!!!!!');
         // save data to file

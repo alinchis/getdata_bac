@@ -153,46 +153,46 @@ async function main() {
       const mapPathSeptember = `${mapPathStartSeptember}/${currentYear}/${mapPathEndSeptember}`;
       // console.log(mapPath);
       try {
-        // const countiesInfoJuly = await getCountiesInfo(mapPathJuly, countiesSavePath.replace('year', `${currentYear}-july`));
-        // const countiesInfoSeptember = await getCountiesInfo(mapPathSeptember, countiesSavePath.replace('year', `${currentYear}-september`));
-        // console.log('>>>> await branch >>>>');
-        //
-        // // stage 2: filter counties, only download data for counties in countiesList
-        // // if countiesList is empty, download all
-        // // filter july list
-        // const filteredCountiesJuly = {
-        //   href: countiesInfoJuly.href,
-        //   counties: countiesInfoJuly.counties.filter( item => countiesList.length > 0 ? countiesList.includes(item.name) : true ),
-        //   hsHref: {
-        //     hsPathStart: hsPathStartJuly.replace('year', `${currentYear}`),
-        //     hsPathEnd: hsPathEndJuly,
-        //   },
-        //   ecHref: {
-        //     ecPathStart: ecPathStartJuly.replace('year', `${currentYear}`),
-        //     ecPathEnd: ecPathEndJuly,
-        //   },
-        //   studentsHref: studentsPathJuly,
-        // }
-        // // filter september list
-        // const filteredCountiesSeptember = {
-        //   href: countiesInfoSeptember.href,
-        //   counties: countiesInfoSeptember.counties.filter( item => countiesList.length > 0 ? countiesList.includes(item.name) : true ),
-        //   hsHref: {
-        //     hsPathStart: hsPathStartSeptember.replace('year', `${currentYear}`),
-        //     hsPathEnd: hsPathEndSeptember,
-        //   },
-        //   ecHref: {
-        //     ecPathStart: ecPathStartSeptember.replace('year', `${currentYear}`),
-        //     ecPathEnd: ecPathEndSeptember,
-        //   },
-        //   studentsHref: studentsPathSeptember,
-        // }
+        const countiesInfoJuly = await getCountiesInfo(mapPathJuly, countiesSavePath.replace('year', `${currentYear}-july`));
+        const countiesInfoSeptember = await getCountiesInfo(mapPathSeptember, countiesSavePath.replace('year', `${currentYear}-september`));
+        console.log('>>>> await branch >>>>');
+
+        // stage 2: filter counties, only download data for counties in countiesList
+        // if countiesList is empty, download all
+        // filter july list
+        const filteredCountiesJuly = {
+          href: countiesInfoJuly.href,
+          counties: countiesInfoJuly.counties.filter( item => countiesList.length > 0 ? countiesList.includes(item.name) : true ),
+          hsHref: {
+            hsPathStart: hsPathStartJuly.replace('year', `${currentYear}`),
+            hsPathEnd: hsPathEndJuly,
+          },
+          ecHref: {
+            ecPathStart: ecPathStartJuly.replace('year', `${currentYear}`),
+            ecPathEnd: ecPathEndJuly,
+          },
+          studentsHref: studentsPathJuly,
+        }
+        // filter september list
+        const filteredCountiesSeptember = {
+          href: countiesInfoSeptember.href,
+          counties: countiesInfoSeptember.counties.filter( item => countiesList.length > 0 ? countiesList.includes(item.name) : true ),
+          hsHref: {
+            hsPathStart: hsPathStartSeptember.replace('year', `${currentYear}`),
+            hsPathEnd: hsPathEndSeptember,
+          },
+          ecHref: {
+            ecPathStart: ecPathStartSeptember.replace('year', `${currentYear}`),
+            ecPathEnd: ecPathEndSeptember,
+          },
+          studentsHref: studentsPathSeptember,
+        }
 
         // stage 3: get exam centers with assigned high schools
         console.log('\n\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
         console.log('STAGE 3: get Exam Centers list\n');
-        // await getExamCentersList(filteredCountiesJuly, ecSavePath.replace('year', `${currentYear}-july`), logFilePath.replace('year', `${currentYear}-july_ec_log`));
-        // await getExamCentersList(filteredCountiesSeptember, ecSavePath.replace('year', `${currentYear}-september`), logFilePath.replace('year', `${currentYear}-september_ec_log`));
+        await getExamCentersList(filteredCountiesJuly, ecSavePath.replace('year', `${currentYear}-july`), logFilePath.replace('year', `${currentYear}-july_ec_log`));
+        await getExamCentersList(filteredCountiesSeptember, ecSavePath.replace('year', `${currentYear}-september`), logFilePath.replace('year', `${currentYear}-september_ec_log`));
 
         // stage 4: get students list
         console.log('\n\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
@@ -230,7 +230,7 @@ async function main() {
           console.log(`${currentYear}-july:: Current year input files found!`);
           // export data to CSV
           const csvFilePathJuly = `${dataPath}/${secondaryArg}/${localPaths['exports']}/${currentYear}-iulie_lista-elevi.csv`;
-          exportToCsv(ecFilePathJuly, stFilePathJuly, csvFilePathJuly);
+          exportToCsv(currentYear, 'july', ecFilePathJuly,stFilePathJuly, csvFilePathJuly);
 
         } else {
           console.log(`${currentYear}-july:: Current year input files NOT found!`);
@@ -244,7 +244,7 @@ async function main() {
           console.log(`${currentYear}-september:: Current year input files found!`);
           // export data to CSV
           const csvFilePathSeptember = `${dataPath}/${secondaryArg}/${localPaths['exports']}/${currentYear}-septembrie_lista-elevi.csv`;
-          exportToCsv(ecFilePathSeptember, stFilePathSeptember, csvFilePathSeptember);
+          exportToCsv(currentYear, 'september', ecFilePathSeptember, stFilePathSeptember, csvFilePathSeptember);
 
         } else {
           console.log(`${currentYear}-september:: Current year input files NOT found!`);

@@ -309,7 +309,7 @@ module.exports = async (year, month, firstPagePath, saveFile, logFile) => {
 
         // start log file
         const logHeaderArr = [ 'request_path', 'response_status' ];
-        fs.writeFileSync(logFile, logHeaderArr.join(','));
+        fs.writeFileSync(logFile, `${logHeaderArr.join(',')}\n`);
 
         // get data
         let responseFirstPage = '';
