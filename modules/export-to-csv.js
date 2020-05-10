@@ -17,7 +17,7 @@ function extractData(ecArray, stArray) {
                 denumire: hsItem.denumire,
                 codSirues: hsItem.codSirues,
                 localitate: hsItem.localitate
-                    .replace(/\s+/g, ' ')
+                    .replace('  ', ' ')
                     .replace('BUCURESTI SECTORUL', 'SECTORUL'),
                 judetCod: ecItem.judet_cod,
                 judetNume: ecItem.judet_nume

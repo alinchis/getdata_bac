@@ -11,21 +11,27 @@ const cheerio = require('cheerio');
 
 // /////////////////////////////////////////////////////////////////////
 // download subsequent html pages
-async function getHtmlPages(countyIndex, county, reqPath, maxPages, saveArr) {
+async function getHtmlPages(countyIndex, county, reqPath, maxPages, saveArr, logFile) {
     console.log('\x1b[34m%s\x1b[0m', `PROGRESS: Download Exam Centers additional HTML pages`);
     for(let i = 2; i <= maxPages; i += 1) {
         // get data from website
         try {
-            // create page request path
-            const nReqPath = `${reqPath}/page_${i}.html`;
-            // get first page data
-            const response = await axios.get(nReqPath);
-            console.log(`${countyIndex}::${county.code}: GET html page ${i} >>> ${response.status}`);
-            if(response.status === 200) {
-                saveArr.push(response.data);
-            } else {
-                throw `${countyIndex}::${county.code}: ERROR retrieving Exams Centers ${i} page!`;
-            }
+            let responseOk = false;
+            do {
+                // create page request path
+                const nReqPath = `${reqPath}/page_${i}.html`;
+                // get data
+                const response = await axios.get(nReqPath);
+                console.log(`${countyIndex}::${county.code}: GET html page ${i} >>> ${response.status}`);
+                if(response.status === 200) {
+                    responseOk = true;
+                    fs.appendFileSync(logFile, `${nReqPath},${response.status}\n`);
+                    saveArr.push(response.data);
+                } else {
+                    fs.appendFileSync(logFile, `${nReqPath},${response.status}\n`);
+                    throw `${countyIndex}::${county.code}: ERROR retrieving Exams Centers ${i} page!`;
+                }
+            } while (!responseOk)
         } catch(err) {
             console.error(err);
         }
@@ -36,8 +42,8 @@ async function getHtmlPages(countyIndex, county, reqPath, maxPages, saveArr) {
 
 // /////////////////////////////////////////////////////////////////////
 // download high schools list
-async function getHsArr(countyIndex, county, ecItem, ecIndex) {
-    console.log(`getHsArr START(${countyIndex}) 333333333333333333333`);
+async function getHsArr(countyIndex, county, ecItem, ecIndex, logFile) {
+    console.log(`\ngetHsArr START(${countyIndex}) 333333333333333333333`);
     const returnArr = [];
 
     try {
@@ -57,7 +63,7 @@ async function getHsArr(countyIndex, county, ecItem, ecIndex) {
         // if max no of pages > 1 get the rest of the pages
         if(maxPages > 1) {
             try {
-                await getHtmlPages(countyIndex, county, ecItem.listaLiceeHref.replace('/index.html', ''), maxPages, pagesArr);
+                await getHtmlPages(countyIndex, county, ecItem.listaLiceeHref.replace('/index.html', ''), maxPages, pagesArr, logFile);
             } catch (e) {
                 console.error(e);
             }
@@ -82,7 +88,7 @@ async function getHsArr(countyIndex, county, ecItem, ecIndex) {
 // /////////////////////////////////////////////////////////////////////
 // process HS html pages
 function processHsHtml(pageHtml, pageIndex) {
-    console.log(`processHsHtml START(${pageIndex}) 4444444444444444444444`);
+    console.log(`\nprocessHsHtml START(${pageIndex}) 4444444444444444444444`);
     // console.log('\x1b[34m%s\x1b[0m', `PROGRESS: Process Exam Centers High Schools HTML page ${pageIndex}`);
     // create return array
     const returnArr = [];
@@ -110,7 +116,7 @@ function processHsHtml(pageHtml, pageIndex) {
             // get HS name
             const itemName = $(row).children().eq(1)
                 .html().replace(/&#xA0;/g, '')
-                .replace(/\s+/g, ' ')
+                .replace('  ', ' ')
                 .replace(/&quot;/g, '"')
                 .replace(/&apos;/g, '"')
                 .replace(/&#xE2;&#x20AC;&#x2122;/g, '"')
@@ -149,7 +155,7 @@ function processHsHtml(pageHtml, pageIndex) {
 // process HTML pages and return array of High Schools
 function processHtml(countyIndex, county, reqPath, lastUpdate, page, pIndex) {
     try {
-        console.log(`processHtml START(${pIndex}) 222222222222222222222`);
+        console.log(`\nprocessHtml START(${pIndex}) 222222222222222222222`);
         console.log('\x1b[34m%s\x1b[0m', `PROGRESS: Process Exam Centers HTML pages`);
         // create return array
         // const returnArr = [];
@@ -177,7 +183,7 @@ function processHtml(countyIndex, county, reqPath, lastUpdate, page, pIndex) {
                 // get Exam Center name
                 const itemName = $(row).children().eq(1)
                     .html().replace(/&#xA0;/g, '')
-                    .replace(/\s+/g, ' ')
+                    .replace('  ', ' ')
                     .replace(/&quot;/g, '"')
                     .replace(/&apos;/g, '"')
                     .replace(/&#xE2;&#x20AC;&#x2122;/g, '"')
@@ -233,7 +239,7 @@ function processHtml(countyIndex, county, reqPath, lastUpdate, page, pIndex) {
 
 // /////////////////////////////////////////////////////////////////////
 // Download & Process Exams Centers
-async function extractData(countyIndex, county, reqPath, htmlData) {
+async function extractData(countyIndex, county, reqPath, htmlData, logFile) {
     console.log(`\n@extractData START(${countyIndex}) 111111111111111111111`);
     // console.log('\x1b[34m%s\x1b[0m', `PROGRESS: Download & Process Exams Centers first HTML page`);
     // load data in cheerio object
@@ -276,7 +282,7 @@ async function extractData(countyIndex, county, reqPath, htmlData) {
         if (maxPages > 1) {
             try {
                 console.log('@extractData:: maxPages > 1 : try branch start');
-                await getHtmlPages(countyIndex, county, reqPath, maxPages, pagesArr);
+                await getHtmlPages(countyIndex, county, reqPath, maxPages, pagesArr, logFile);
                 console.log('@extractData:: maxPages > 1 : try branch end');
             } catch (e) {
                 console.error(e);
@@ -295,7 +301,7 @@ async function extractData(countyIndex, county, reqPath, htmlData) {
         returnArr = await Promise.all(ecArr.map((ecItem, ecIndex) => {
             console.log(ecItem.denumire);
             console.log(`${countyIndex}::${county.code}: : @extractData >>> get all HS pages for loop #${ecIndex}`);
-            return getHsArr(countyIndex, county, ecItem, ecIndex);
+            return getHsArr(countyIndex, county, ecItem, ecIndex, logFile);
         }));
 
     } else {
@@ -309,20 +315,38 @@ async function extractData(countyIndex, county, reqPath, htmlData) {
 
 // /////////////////////////////////////////////////////////////////////////////
 // // EXPORTS
-module.exports = async (countiesObj, saveFile) => {
+module.exports = async (countiesObj, saveFile, logFile) => {
     try {
-        console.log('\x1b[34m%s\x1b[0m', `PROGRESS: Download Exams Centers info`);
+        console.log('\x1b[34m%s\x1b[0m', `\n\nPROGRESS: Download Exams Centers info`);
+
+        // start log file
+        const logHeaderArr = [ 'request_path', 'response_status' ];
+        fs.writeFileSync(logFile, `${logHeaderArr.join(',')}\n`);
 
         // for each item in counties array
         const ecArray = await Promise.all(countiesObj.counties.map(async (county, ctyIndex) => {
             // get data from website
             // create first page request path
-            const reqPath = `${countiesObj.ecHref.ecPathStart}/${county.code}/${countiesObj.ecHref.ecPathEnd}`;
+            const firstPagePath = `${countiesObj.ecHref.ecPathStart}/${county.code}/${countiesObj.ecHref.ecPathEnd}`;
+
+            // get first page
+            let responseFirstPage = '';
+            let firstPageOk = false;
+            do {
+                responseFirstPage = await axios.get(firstPagePath);
+                if(responseFirstPage.status === 200) {
+                    fs.appendFileSync(logFile, `${firstPagePath},${responseFirstPage.status}\n`);
+                    firstPageOk = true;
+                } else {
+                    fs.appendFileSync(logFile, `${firstPagePath},${responseFirstPage.status}\n`);
+                    throw `RO ERROR retrieving Students List FIRST page!`;
+                }
+            } while (!firstPageOk);
 
             // get data
-            const response = await axios.get(reqPath);
-            console.log(`${ctyIndex}::${county.code}: GET first page status = ${response.status}`);
-            return extractData(ctyIndex, county, reqPath, response.data)
+            // const response = await axios.get(reqPath);
+            console.log(`${ctyIndex}::${county.code}: GET first page status = ${responseFirstPage.status}`);
+            return extractData(ctyIndex, county, firstPagePath, responseFirstPage.data, logFile);
         }));
 
         console.log('extractData done !!!!!!!!!!!!!!!!!!!!!!!!!!!');

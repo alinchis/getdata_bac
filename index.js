@@ -19,14 +19,23 @@ const localPaths = {
   logs: 'logs',
 };
 
-// remote paths
-const mapPathStart = 'http://static.bacalaureat.edu.ro'; // mapPathStart/year/mapPathEnd
-const mapPathEnd = 'rapoarte_sept/judete.html';
-const hsPathStart = 'http://static.bacalaureat.edu.ro/year/rapoarte_sept'; // hsPathStart/countyCode/hsPathEnd
-const hsPathEnd = 'lista_unitati';
-const ecPathStart = 'http://static.bacalaureat.edu.ro/year/rapoarte_sept'; // ecPathStart/countyCode/ecPathEnd
-const ecPathEnd = 'unitati_arondate';
-const studentsPath = 'http://static.bacalaureat.edu.ro/year/rapoarte_sept/rezultate/alfabetic';
+// remote paths @july
+const mapPathStartJuly = 'http://static.bacalaureat.edu.ro'; // mapPathStart/year/mapPathEnd
+const mapPathEndJuly = 'rapoarte/judete.html';
+const hsPathStartJuly = 'http://static.bacalaureat.edu.ro/year/rapoarte'; // hsPathStart/countyCode/hsPathEnd
+const hsPathEndJuly = 'lista_unitati';
+const ecPathStartJuly = 'http://static.bacalaureat.edu.ro/year/rapoarte'; // ecPathStart/countyCode/ecPathEnd
+const ecPathEndJuly = 'unitati_arondate';
+const studentsPathJuly = 'http://static.bacalaureat.edu.ro/year/rapoarte/rezultate/alfabetic';
+
+// remote paths @september
+const mapPathStartSeptember = 'http://static.bacalaureat.edu.ro'; // mapPathStart/year/mapPathEnd
+const mapPathEndSeptember = 'rapoarte_sept/judete.html';
+const hsPathStartSeptember = 'http://static.bacalaureat.edu.ro/year/rapoarte_sept'; // hsPathStart/countyCode/hsPathEnd
+const hsPathEndSeptember = 'lista_unitati';
+const ecPathStartSeptember = 'http://static.bacalaureat.edu.ro/year/rapoarte_sept'; // ecPathStart/countyCode/ecPathEnd
+const ecPathEndSeptember = 'unitati_arondate';
+const studentsPathSeptember = 'http://static.bacalaureat.edu.ro/year/rapoarte_sept/rezultate/alfabetic';
 
 
 // ////////////////////////////////////////////////////////////////////////////
@@ -56,6 +65,7 @@ async function main() {
   const countiesSavePath = `${metadataPath}/year_counties.json`;
   const ecSavePath = `${metadataPath}/year_exam-centers.json`;
   const studentsSavePath = `${tablesPath}/year_students.json`;
+  const logFilePath = `${logsPath}/year.csv`;
 
   // help text
   const helpText = `\n Available commands:\n\n\
@@ -135,41 +145,60 @@ async function main() {
     createFolder(4, logsPath);
 
     // stage 1: get counties info
-    console.log('\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
+    console.log('\n\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
     console.log('STAGE 1: get counties info\n');
     for(let yearIndex = 0; yearIndex < yearList.length; yearIndex += 1) {
       const currentYear = yearList[yearIndex]; // choose year to retrieve data for
-      const mapPath = `${mapPathStart}/${currentYear}/${mapPathEnd}`;
+      const mapPathJuly = `${mapPathStartJuly}/${currentYear}/${mapPathEndJuly}`;
+      const mapPathSeptember = `${mapPathStartSeptember}/${currentYear}/${mapPathEndSeptember}`;
       // console.log(mapPath);
       try {
-        const countiesInfo = await getCountiesInfo(mapPath, countiesSavePath.replace('year', `${currentYear}`));
-        console.log('>>>> await branch >>>>');
-
-        // stage 2: filter counties, only download data for counties in countiesList
-        // if countiesList is empty, download all
-        const filteredCounties = {
-          href: countiesInfo.href,
-          counties: countiesInfo.counties.filter( item => countiesList.length > 0 ? countiesList.includes(item.name) : true ),
-          hsHref: {
-            hsPathStart: hsPathStart.replace('year', `${currentYear}`),
-            hsPathEnd,
-          },
-          ecHref: {
-            ecPathStart: ecPathStart.replace('year', `${currentYear}`),
-            ecPathEnd,
-          },
-          studentsHref: studentsPath,
-        }
+        // const countiesInfoJuly = await getCountiesInfo(mapPathJuly, countiesSavePath.replace('year', `${currentYear}-july`));
+        // const countiesInfoSeptember = await getCountiesInfo(mapPathSeptember, countiesSavePath.replace('year', `${currentYear}-september`));
+        // console.log('>>>> await branch >>>>');
+        //
+        // // stage 2: filter counties, only download data for counties in countiesList
+        // // if countiesList is empty, download all
+        // // filter july list
+        // const filteredCountiesJuly = {
+        //   href: countiesInfoJuly.href,
+        //   counties: countiesInfoJuly.counties.filter( item => countiesList.length > 0 ? countiesList.includes(item.name) : true ),
+        //   hsHref: {
+        //     hsPathStart: hsPathStartJuly.replace('year', `${currentYear}`),
+        //     hsPathEnd: hsPathEndJuly,
+        //   },
+        //   ecHref: {
+        //     ecPathStart: ecPathStartJuly.replace('year', `${currentYear}`),
+        //     ecPathEnd: ecPathEndJuly,
+        //   },
+        //   studentsHref: studentsPathJuly,
+        // }
+        // // filter september list
+        // const filteredCountiesSeptember = {
+        //   href: countiesInfoSeptember.href,
+        //   counties: countiesInfoSeptember.counties.filter( item => countiesList.length > 0 ? countiesList.includes(item.name) : true ),
+        //   hsHref: {
+        //     hsPathStart: hsPathStartSeptember.replace('year', `${currentYear}`),
+        //     hsPathEnd: hsPathEndSeptember,
+        //   },
+        //   ecHref: {
+        //     ecPathStart: ecPathStartSeptember.replace('year', `${currentYear}`),
+        //     ecPathEnd: ecPathEndSeptember,
+        //   },
+        //   studentsHref: studentsPathSeptember,
+        // }
 
         // stage 3: get exam centers with assigned high schools
-        console.log('\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
+        console.log('\n\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
         console.log('STAGE 3: get Exam Centers list\n');
-        await getExamCentersList(filteredCounties, ecSavePath.replace('year', `${currentYear}`));
+        // await getExamCentersList(filteredCountiesJuly, ecSavePath.replace('year', `${currentYear}-july`), logFilePath.replace('year', `${currentYear}-july_ec_log`));
+        // await getExamCentersList(filteredCountiesSeptember, ecSavePath.replace('year', `${currentYear}-september`), logFilePath.replace('year', `${currentYear}-september_ec_log`));
 
         // stage 4: get students list
-        console.log('\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
+        console.log('\n\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
         console.log('STAGE 3: get Students list\n');
-        await getStudentsList(currentYear, studentsPath.replace('year', `${currentYear}`), studentsSavePath.replace('year', `${currentYear}`));
+        await getStudentsList(currentYear, 'july', studentsPathJuly.replace('year', `${currentYear}`), studentsSavePath.replace('year', `${currentYear}-july`), logFilePath.replace('year', `${currentYear}-july_students_log`));
+        await getStudentsList(currentYear, 'september', studentsPathSeptember.replace('year', `${currentYear}`), studentsSavePath.replace('year', `${currentYear}-september`), logFilePath.replace('year', `${currentYear}-september_students_log`));
 
       } catch (err) {
         console.error(err);
@@ -181,7 +210,7 @@ async function main() {
   } else if (mainArg === '-e') {
 
     // stage 3: get localities DATA
-    console.log('\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
+    console.log('\n\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
     console.log('STAGE 3: export JSON data to CSV\n');
 
     // check for date argument
@@ -192,17 +221,33 @@ async function main() {
       // for each year in year list
       for(let yearIndex = 0; yearIndex < yearList.length; yearIndex += 1) {
         const currentYear = yearList[yearIndex];
-        const ecFilePath = `${inMetadataPath}/${currentYear}_exam-centers.json`;
-        const stFilePath = `${inTablesPath}/${currentYear}_students.json`;
+
+        // july
+        const ecFilePathJuly = `${inMetadataPath}/${currentYear}-july_exam-centers.json`;
+        const stFilePathJuly = `${inTablesPath}/${currentYear}-july_students.json`;
         // check if current year data files exists
-        if(fs.existsSync(ecFilePath) && fs.existsSync(stFilePath)) {
-          console.log(`${currentYear}:: Current year input files found!`);
+        if(fs.existsSync(ecFilePathJuly) && fs.existsSync(stFilePathJuly)) {
+          console.log(`${currentYear}-july:: Current year input files found!`);
           // export data to CSV
-          const csvFilePath = `${dataPath}/${secondaryArg}/${localPaths['exports']}/${currentYear}_lista-elevi.csv`;
-          exportToCsv(ecFilePath, stFilePath, csvFilePath);
+          const csvFilePathJuly = `${dataPath}/${secondaryArg}/${localPaths['exports']}/${currentYear}-iulie_lista-elevi.csv`;
+          exportToCsv(ecFilePathJuly, stFilePathJuly, csvFilePathJuly);
 
         } else {
-          console.log(`${currentYear}:: Current year input files NOT found!`);
+          console.log(`${currentYear}-july:: Current year input files NOT found!`);
+        }
+
+        // september
+        const ecFilePathSeptember = `${inMetadataPath}/${currentYear}-september_exam-centers.json`;
+        const stFilePathSeptember = `${inTablesPath}/${currentYear}-september_students.json`;
+        // check if current year data files exists
+        if(fs.existsSync(ecFilePathSeptember) && fs.existsSync(stFilePathSeptember)) {
+          console.log(`${currentYear}-september:: Current year input files found!`);
+          // export data to CSV
+          const csvFilePathSeptember = `${dataPath}/${secondaryArg}/${localPaths['exports']}/${currentYear}-septembrie_lista-elevi.csv`;
+          exportToCsv(ecFilePathSeptember, stFilePathSeptember, csvFilePathSeptember);
+
+        } else {
+          console.log(`${currentYear}-september:: Current year input files NOT found!`);
         }
       }
     } else {
